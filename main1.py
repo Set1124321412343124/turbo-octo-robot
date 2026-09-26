@@ -12,8 +12,8 @@ CLAN_PRICE = 100
 MIN_CLAN_NAME_LENGTH = 3
 MAX_CLAN_NAME_LENGTH = 20
 NFT_BASE_PRICE = 1000
-ALLOWED_GROUP_ID = -1002966537381
-CHANNEL_ID = -1002966537381
+ALLOWED_GROUP_ID = -1003706413551
+CHANNEL_ID = -1003651432181
 HALLOWEEN_EVENT_ACTIVE = False
 HALLOWEEN_END_TIME = 1762635600
 KILL_COOLDOWN = 2 * 60 * 60
@@ -68,14 +68,14 @@ WELCOME_MESSAGES = [
 ]
 MAX_WARNINGS = 3
 WARNING_DURATION = 7 * 24 * 60 * 60
-bot = telebot.TeleBot('8791216614:AAFeu0p9fRps4GA1M04T0d2FKMHscSMaBWQ')
+bot = telebot.TeleBot('8720009865:AAG3Nw9FHAjWI2KyNby7Q0e-6jy8baXnvTQ')
 bot.remove_webhook()
 DATA_FILE = 'user_data.json'
 CLANS_FILE = 'clans_data.json'
 PROMO_FILE = 'promo_data.json'
 NFT_DATA_FILE = 'nft_data.json'
 user_nfts = {}
-ADMIN_IDS = [6413063320, 6950398294]
+ADMIN_IDS = [6413063320, 6950398294, 8125707937]
 def end_halloween_event():
     global HALLOWEEN_EVENT_ACTIVE
     if not HALLOWEEN_EVENT_ACTIVE:
@@ -449,8 +449,21 @@ def is_subscribed(user_id):
     try:
         member = bot.get_chat_member(CHANNEL_ID, user_id)
         return member.status in ['member', 'administrator', 'creator']
-    except:
+    except Exception as e:
+        print(f"[SUB] Ошибка проверки подписки в {CHANNEL_ID} для {user_id}: {e}")
         return False
+
+def check_bot_rights():
+    try:
+        group_member = bot.get_chat_member(ALLOWED_GROUP_ID, bot.get_me().id)
+        print(f"[RIGHTS] Бот в группе {ALLOWED_GROUP_ID}: {group_member.status}")
+    except Exception as e:
+        print(f"[RIGHTS] Не удалось получить права в группе {ALLOWED_GROUP_ID}: {e}")
+    try:
+        channel_member = bot.get_chat_member(CHANNEL_ID, bot.get_me().id)
+        print(f"[RIGHTS] Бот в канале {CHANNEL_ID}: {channel_member.status}")
+    except Exception as e:
+        print(f"[RIGHTS] НЕТ доступа к каналу {CHANNEL_ID}: {e}")
 
 def group_only(func):
     """Декоратор: работает в любых группах, но требует подписки на канал"""
@@ -459,13 +472,13 @@ def group_only(func):
             bot.reply_to(message,
                 "\U0001f4e3 \u0411\u043e\u0442 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u0442\u043e\u043b\u044c\u043a\u043e \u0432 \u0433\u0440\u0443\u043f\u043f\u0430\u0445!\n\n"
                 "\U0001f517 \u0414\u043b\u044f \u043d\u0430\u0447\u0430\u043b\u0430 \u043f\u043e\u0434\u043f\u0438\u0441\u044b\u0442\u0435\u0441\u044c \u043d\u0430 \u043d\u0430\u0448 \u043a\u0430\u043d\u0430\u043b:\n"
-                "https://t.me/Potuzhiya\n\n"
+                "https://t.me/chat_DUROV_Official\n\n"
                 "\u041f\u043e\u0441\u043b\u0435 \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0438 \u0434\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u0431\u043e\u0442\u0430 \u0432 \u043b\u044e\u0431\u0443\u044e \u0433\u0440\u0443\u043f\u043f\u0443 \u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u044b \u0442\u0430\u043c.")
             return
         if not is_subscribed(message.from_user.id):
             bot.reply_to(message,
                 "\u26a0\ufe0f \u0414\u043b\u044f \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0431\u043e\u0442\u0430 \u043f\u043e\u0434\u043f\u0438\u0448\u0438\u0442\u0435\u0441\u044c \u043d\u0430 \u043d\u0430\u0448 \u043a\u0430\u043d\u0430\u043b!\n\n"
-                "\U0001f517 https://t.me/Potuzhiya\n\n"
+                "\U0001f517 https://t.me/chat_DUROV_Official\n\n"
                 "\u041f\u043e\u0441\u043b\u0435 \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0438 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0441\u043d\u043e\u0432\u0430.")
             return
         return func(message)
@@ -2873,6 +2886,9 @@ math_active = False
 math_answer = 0
 math_reward = 0
 math_chat_id = None
+math_deadline = 0
+
+MATH_ROUND_DURATION = 10 * 60
 
 MATH_REPLIES = [
     "✅ Правильно! Награда: {reward} Zеток!",
@@ -2901,31 +2917,39 @@ def generate_math():
     expr = f"{a} {op_symbol} {b}"
     return expr, result
 
+def start_math_round(chat_id, reward=None):
+    global math_active, math_answer, math_reward, math_chat_id, math_deadline
+    expr, answer = generate_math()
+    math_reward = reward if reward is not None else random.randint(10, 100)
+    math_answer = answer
+    math_chat_id = chat_id
+    math_deadline = time.time() + MATH_ROUND_DURATION
+    math_active = True
+    msg = (
+        f"🧮 МАТЕМАТИЧЕСКИЙ ВЫЗОВ!\n\n"
+        f"{expr} = ?\n\n"
+        f"🏆 Награда: {math_reward} Zеток\n"
+        f"⏰ Ответьте первым правильно!"
+    )
+    bot.send_message(chat_id, msg)
+    return expr, answer
+
 def math_event_loop():
-    global math_active, math_answer, math_reward, math_chat_id
     while True:
         time.sleep(random.randint(600, 2400))
         try:
-            math_chat_id = ALLOWED_GROUP_ID
-            if not math_chat_id:
+            if not ALLOWED_GROUP_ID:
                 continue
-            expr, answer = generate_math()
-            math_reward = random.randint(10, 100)
-            math_answer = answer
-            math_active = True
-            msg = (
-                f"🧮 МАТЕМАТИЧЕСКИЙ ВЫЗОВ!\n\n"
-                f"{expr} = ?\n\n"
-                f"🏆 Награда: {math_reward} Zеток\n"
-                f"⏰ Ответьте первым правильно!"
-            )
-            bot.send_message(math_chat_id, msg)
+            start_math_round(ALLOWED_GROUP_ID)
         except Exception as e:
             print(f"Ошибка math_event: {e}")
 
 def handle_math_reply(message: Message):
-    global math_active, math_answer, math_reward
+    global math_active
     if not math_active:
+        return
+    if time.time() > math_deadline:
+        math_active = False
         return
     if message.chat.type == 'private':
         return
@@ -2953,6 +2977,64 @@ def handle_math_reply(message: Message):
     save_user_data()
     reply = random.choice(MATH_REPLIES).format(reward=math_reward)
     bot.reply_to(message, f"🎯 {message.from_user.first_name}, {reply}")
+
+@bot.message_handler(commands=['math'])
+def handle_math_command(message: Message):
+    global math_active
+    if not is_admin(message.from_user.id):
+        bot.reply_to(message, "🚫 У вас нет прав для использования этой команды!")
+        return
+    parts = message.text.split()
+    if len(parts) > 1 and parts[1].lower() in ['stop', 'off', 'стоп', 'выключить']:
+        if math_active:
+            math_active = False
+            bot.reply_to(message, "🛑 Математический вызов остановлен")
+        else:
+            bot.reply_to(message, "ℹ️ Активного математического вызова нет")
+        return
+    reward = None
+    if len(parts) > 1:
+        try:
+            reward = int(parts[1])
+        except ValueError:
+            bot.reply_to(message,
+                "⚠️ Неверный формат команды!\n"
+                "Используйте: /math [награда]\n"
+                "Пример: /math 50")
+            return
+    chat_id = message.chat.id if message.chat.type != 'private' else ALLOWED_GROUP_ID
+    if not chat_id:
+        bot.reply_to(message, "❌ Не настроен чат для математических примеров")
+        return
+    try:
+        start_math_round(chat_id, reward)
+    except Exception as e:
+        print(f"Ошибка handle_math_command: {e}")
+        bot.reply_to(message,
+            "❌ Не удалось отправить пример!\n"
+            "Убедитесь, что бот администратор в группе и ALLOWED_GROUP_ID указан верно.")
+        return
+    bot.reply_to(message, "✅ Математический вызов запущен!")
+
+@bot.message_handler(commands=['rights'])
+def handle_rights_command(message: Message):
+    if not is_admin(message.from_user.id):
+        bot.reply_to(message, "🚫 У вас нет прав для использования этой команды!")
+        return
+    lines = []
+    for label, chat_id in [("Группа", ALLOWED_GROUP_ID), ("Канал", CHANNEL_ID)]:
+        try:
+            member = bot.get_chat_member(chat_id, bot.get_me().id)
+            lines.append(f"{label} {chat_id}: бот — {member.status}")
+        except Exception as e:
+            lines.append(f"{label} {chat_id}: ❌ нет доступа ({e})")
+    try:
+        bot.send_message(ALLOWED_GROUP_ID, "🔧 Проверка прав доступа")
+        lines.append("Отправка в группу: ✅")
+    except Exception as e:
+        lines.append(f"Отправка в группу: ❌ {e}")
+    lines.append("Если у тебя приватный режим, бот не увидит ответы — отключи его у @BotFather")
+    bot.reply_to(message, "\n".join(lines))
 
 # ==================== SLOTS ====================
 SLOT_SYMBOLS = ['🍒', '🍎', '🍉', '🍀', '💎', '💰']
@@ -3416,6 +3498,7 @@ if __name__ == '__main__':
 
     web_thread = threading.Thread(target=run_web, daemon=True)
     web_thread.start()
+    check_bot_rights()
 
     event_thread = threading.Thread(target=check_event_end, daemon=True)
     event_thread.start()
