@@ -2888,7 +2888,7 @@ math_reward = 0
 math_chat_id = None
 math_deadline = 0
 
-MATH_ROUND_DURATION = 10 * 60
+MATH_ROUND_DURATION = 24 * 60 * 60
 
 MATH_REPLIES = [
     "✅ Правильно! Награда: {reward} Zеток!",
@@ -2917,19 +2917,20 @@ def generate_math():
     expr = f"{a} {op_symbol} {b}"
     return expr, result
 
-def start_math_round(chat_id, reward=None):
+def start_math_round(chat_id, reward=None, duration=None):
     global math_active, math_answer, math_reward, math_chat_id, math_deadline
     expr, answer = generate_math()
     math_reward = reward if reward is not None else random.randint(10, 100)
     math_answer = answer
     math_chat_id = chat_id
-    math_deadline = time.time() + MATH_ROUND_DURATION
+    math_deadline = time.time() + (duration or MATH_ROUND_DURATION)
     math_active = True
+    hours_left = max(1, int((math_deadline - time.time()) // 3600))
     msg = (
         f"🧮 МАТЕМАТИЧЕСКИЙ ВЫЗОВ!\n\n"
         f"{expr} = ?\n\n"
         f"🏆 Награда: {math_reward} Zеток\n"
-        f"⏰ Ответьте первым правильно!"
+        f"⏰ Ответьте первым правильно! (пример висит {hours_left} ч.)"
     )
     bot.send_message(chat_id, msg)
     return expr, answer
@@ -2939,6 +2940,8 @@ def math_event_loop():
         time.sleep(random.randint(600, 2400))
         try:
             if not ALLOWED_GROUP_ID:
+                continue
+            if math_active and time.time() < math_deadline:
                 continue
             start_math_round(ALLOWED_GROUP_ID)
         except Exception as e:
@@ -2993,21 +2996,26 @@ def handle_math_command(message: Message):
             bot.reply_to(message, "ℹ️ Активного математического вызова нет")
         return
     reward = None
+    duration = None
     if len(parts) > 1:
         try:
             reward = int(parts[1])
+            if len(parts) > 2:
+                duration = int(parts[2])
+                if duration < 10:
+                    raise ValueError
         except ValueError:
             bot.reply_to(message,
                 "⚠️ Неверный формат команды!\n"
-                "Используйте: /math [награда]\n"
-                "Пример: /math 50")
+                "Используйте: /math [награда] [время_в_секундах]\n"
+                "Примеры: /math 50  |  /math 50 86400")
             return
     chat_id = message.chat.id if message.chat.type != 'private' else ALLOWED_GROUP_ID
     if not chat_id:
         bot.reply_to(message, "❌ Не настроен чат для математических примеров")
         return
     try:
-        start_math_round(chat_id, reward)
+        start_math_round(chat_id, reward, duration)
     except Exception as e:
         print(f"Ошибка handle_math_command: {e}")
         bot.reply_to(message,
