@@ -1,4 +1,4 @@
-﻿import telebot
+import telebot
 import random
 import json
 import os
@@ -13,7 +13,7 @@ MIN_CLAN_NAME_LENGTH = 3
 MAX_CLAN_NAME_LENGTH = 20
 NFT_BASE_PRICE = 1000
 ALLOWED_GROUP_ID = -1002966537381
-CHANNEL_ID = -1003651432181
+CHANNEL_ID = -1002966537381
 HALLOWEEN_EVENT_ACTIVE = False
 HALLOWEEN_END_TIME = 1762635600
 KILL_COOLDOWN = 2 * 60 * 60
@@ -68,14 +68,14 @@ WELCOME_MESSAGES = [
 ]
 MAX_WARNINGS = 3
 WARNING_DURATION = 7 * 24 * 60 * 60
-bot = telebot.TeleBot('8720009865:AAG3Nw9FHAjWI2KyNby7Q0e-6jy8baXnvTQ')
+bot = telebot.TeleBot('8791216614:AAFeu0p9fRps4GA1M04T0d2FKMHscSMaBWQ')
 bot.remove_webhook()
 DATA_FILE = 'user_data.json'
 CLANS_FILE = 'clans_data.json'
 PROMO_FILE = 'promo_data.json'
 NFT_DATA_FILE = 'nft_data.json'
 user_nfts = {}
-ADMIN_IDS = [6413063320, 6950398294, 8125707937]
+ADMIN_IDS = [6413063320, 6950398294]
 def end_halloween_event():
     global HALLOWEEN_EVENT_ACTIVE
     if not HALLOWEEN_EVENT_ACTIVE:
@@ -459,13 +459,13 @@ def group_only(func):
             bot.reply_to(message,
                 "\U0001f4e3 \u0411\u043e\u0442 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u0442\u043e\u043b\u044c\u043a\u043e \u0432 \u0433\u0440\u0443\u043f\u043f\u0430\u0445!\n\n"
                 "\U0001f517 \u0414\u043b\u044f \u043d\u0430\u0447\u0430\u043b\u0430 \u043f\u043e\u0434\u043f\u0438\u0441\u044b\u0442\u0435\u0441\u044c \u043d\u0430 \u043d\u0430\u0448 \u043a\u0430\u043d\u0430\u043b:\n"
-                "https://t.me/chat_DUROV_Official\n\n"
+                "https://t.me/Potuzhiya\n\n"
                 "\u041f\u043e\u0441\u043b\u0435 \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0438 \u0434\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u0431\u043e\u0442\u0430 \u0432 \u043b\u044e\u0431\u0443\u044e \u0433\u0440\u0443\u043f\u043f\u0443 \u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u044b \u0442\u0430\u043c.")
             return
         if not is_subscribed(message.from_user.id):
             bot.reply_to(message,
                 "\u26a0\ufe0f \u0414\u043b\u044f \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0431\u043e\u0442\u0430 \u043f\u043e\u0434\u043f\u0438\u0448\u0438\u0442\u0435\u0441\u044c \u043d\u0430 \u043d\u0430\u0448 \u043a\u0430\u043d\u0430\u043b!\n\n"
-                "\U0001f517 https://t.me/chat_DUROV_Official\n\n"
+                "\U0001f517 https://t.me/Potuzhiya\n\n"
                 "\u041f\u043e\u0441\u043b\u0435 \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0438 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0441\u043d\u043e\u0432\u0430.")
             return
         return func(message)
