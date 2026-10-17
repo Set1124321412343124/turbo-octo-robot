@@ -6,7 +6,6 @@ from telebot.types import Message
 import datetime
 import threading
 import time
-import database as db
 from http.server import HTTPServer, BaseHTTPRequestHandler
 CLAN_PRICE = 100
 MIN_CLAN_NAME_LENGTH = 3
@@ -74,8 +73,35 @@ DATA_FILE = 'user_data.json'
 CLANS_FILE = 'clans_data.json'
 PROMO_FILE = 'promo_data.json'
 NFT_DATA_FILE = 'nft_data.json'
+MARKET_FILE = 'market_data.json'
 user_nfts = {}
 ADMIN_IDS = [6413063320, 6950398294, 8125707937]
+
+def _load_json(path, default):
+    if not os.path.exists(path):
+        return default
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError, ValueError):
+        return default
+
+def _save_json(path, data):
+    tmp = path + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, path)
+
+def _int_keys(data):
+    if not isinstance(data, dict):
+        return data
+    result = {}
+    for key, value in data.items():
+        try:
+            result[int(key)] = value
+        except (ValueError, TypeError):
+            result[key] = value
+    return result
 def end_halloween_event():
     global HALLOWEEN_EVENT_ACTIVE
     if not HALLOWEEN_EVENT_ACTIVE:
@@ -237,16 +263,16 @@ SHOP_ITEMS = {
     },
 }
 def load_user_data():
-    return db.load_all_users()
+    return _int_keys(_load_json(DATA_FILE, {}))
 
 def load_clans_data():
-    return db.load_all_clans()
+    return _load_json(CLANS_FILE, {})
 
 def save_user_data():
-    db.save_all_users(user_balances)
+    _save_json(DATA_FILE, user_balances)
 
 def save_clans_data():
-    db.save_all_clans(clans)
+    _save_json(CLANS_FILE, clans)
 def check_event_end():
     while True:
         try:
@@ -259,20 +285,20 @@ def check_event_end():
             print(f"Ошибка в check_event_end: {e}")
             time.sleep(300)
 def load_promo_data():
-    return db.load_all_promos()
+    return _load_json(PROMO_FILE, {})
 
 promo_codes = load_promo_data()
 
 def save_promo_data():
-    db.save_all_promos(promo_codes)
+    _save_json(PROMO_FILE, promo_codes)
 user_balances = load_user_data()
 clans = load_clans_data()
 def load_nft_data():
     global user_nfts
-    user_nfts = db.load_all_nfts()
+    user_nfts = _int_keys(_load_json(NFT_DATA_FILE, {}))
 
 def save_nft_data():
-    db.save_all_nfts(user_nfts)
+    _save_json(NFT_DATA_FILE, user_nfts)
 load_nft_data()
 def init_user_data(user_id):
     if user_id not in user_balances:
@@ -374,10 +400,10 @@ def is_admin(user_id):
     return user_id in ADMIN_IDS
 def load_market_data():
     global market_listings
-    market_listings = db.load_all_market()
+    market_listings = _int_keys(_load_json(MARKET_FILE, {}))
 
 def save_market_data():
-    db.save_all_market(market_listings)
+    _save_json(MARKET_FILE, market_listings)
 def market_cleanup_worker():
     """Фоновая задача для очистки рынка"""
     while True:
