@@ -138,128 +138,85 @@ def end_halloween_event():
                 continue
     save_user_data()
 SHOP_ITEMS = {
-    # ===== ФАРМ БОНУСЫ =====
+    # ── Зарплатные бонусы (шкала: 1.0 = +100%) ──────────────────
     'gold_rise': {
-        'id': 'gold_rise',
-        'name': '🪙 Золотой червонец',
+        'id': 'gold_rise', 'name': '🪙 Золотой червонец',
         'description': 'Легендарный предмет. +100% к зарплате',
-        'price': 5000,
-        'bonus_type': 'farm',
-        'bonus_value': 10.0
+        'price': 5000, 'bonus_type': 'farm', 'bonus_value': 1.0,      # было 10.0
     },
     'halloween_pumpkin': {
-        'id': 'halloween_pumpkin',
-        'name': '🎃 Тыква губернатора',
+        'id': 'halloween_pumpkin', 'name': '🎃 Тыква губернатора',
         'description': 'Ивентный предмет. +100% к зарплате',
-        'price': 150,
-        'bonus_type': 'farm',
-        'bonus_value': 1.5
-    },
-    'watermelon': {
-        'id': 'watermelon',
-        'name': '🍉 Священный арбуз',
-        'description': 'Священный плод полуострова. +50% к зарплате',
-        'price': 1000,
-        'bonus_type': 'farm',
-        'bonus_value': 0.5
+        'price': 4500, 'bonus_type': 'farm', 'bonus_value': 1.0,      # было 150 / 1.5
     },
     'dragon': {
-        'id': 'dragon',
-        'name': '🐉 Китайский дракон',
+        'id': 'dragon', 'name': '🐉 Китайский дракон',
         'description': 'Мифическое существо. +50% к зарплате',
-        'price': 2000,
-        'bonus_type': 'farm',
-        'bonus_value': 0.5
+        'price': 2500, 'bonus_type': 'farm', 'bonus_value': 0.5,      # было 2000
     },
-    'scissors': {
-        'id': 'scissors',
-        'name': '🔪 Священный серп',
-        'description': 'Оружие трудовиков. +30% к зарплате',
-        'price': 700,
-        'bonus_type': 'farm',
-        'bonus_value': 0.3
-    },
-    'watering_can': {
-        'id': 'watering_can',
-        'name': '🌱 Царская поливалка',
-        'description': 'Для полива полей. +20% к зарплате',
-        'price': 500,
-        'bonus_type': 'farm',
-        'bonus_value': 0.2
+    'watermelon': {
+        'id': 'watermelon', 'name': '🍉 Священный арбуз',
+        'description': 'Священный плод полуострова. +50% к зарплате',
+        'price': 2200, 'bonus_type': 'farm', 'bonus_value': 0.5,      # было 1000
     },
     'defender_medal': {
-        'id': 'defender_medal',
-        'name': '🎖️ Медаль защитника Полуострова',
+        'id': 'defender_medal', 'name': '🎖️ Медаль защитника Полуострова',
         'description': 'За охрану рубежей. +35% к зарплате',
-        'price': 1500,
-        'bonus_type': 'farm',
-        'bonus_value': 0.35
+        'price': 1600, 'bonus_type': 'farm', 'bonus_value': 0.35,     # было 1500
+    },
+    'scissors': {
+        'id': 'scissors', 'name': '🔪 Священный серп',
+        'description': 'Оружие трудовиков. +30% к зарплате',
+        'price': 1300, 'bonus_type': 'farm', 'bonus_value': 0.3,      # было 700
     },
     'governor_seal': {
-        'id': 'governor_seal',
-        'name': '👑 Печать губернатора',
+        'id': 'governor_seal', 'name': '👑 Печать губернатора',
         'description': 'Документ власти. +25% к зарплате',
-        'price': 1200,
-        'bonus_type': 'farm',
-        'bonus_value': 0.25
+        'price': 1100, 'bonus_type': 'farm', 'bonus_value': 0.25,     # было 1200
+    },
+    'watering_can': {
+        'id': 'watering_can', 'name': '🌱 Царская поливалка',
+        'description': 'Для полива полей. +20% к зарплате',
+        'price': 800, 'bonus_type': 'farm', 'bonus_value': 0.2,       # было 500
     },
     'border_flask': {
-        'id': 'border_flask',
-        'name': '🥃 Фляга пограничника',
+        'id': 'border_flask', 'name': '🥃 Фляга пограничника',
         'description': 'Поднимает дух. +15% к зарплате',
-        'price': 350,
-        'bonus_type': 'farm',
-        'bonus_value': 0.15
+        'price': 550, 'bonus_type': 'farm', 'bonus_value': 0.15,      # было 350
     },
     'june_sky': {
-        'id': 'june_sky',
-        'name': '☁️ Ломтик июльского неба',
+        'id': 'june_sky', 'name': '☁️ Ломтик июльского неба',
         'description': 'Природа крымская. +10% к зарплате',
-        'price': 200,
-        'bonus_type': 'farm',
-        'bonus_value': 0.1
+        'price': 300, 'bonus_type': 'farm', 'bonus_value': 0.1,       # было 200
     },
     'sharf': {
-        'id': 'sharf',
-        'name': '🧣 Шарф ополченца',
+        'id': 'sharf', 'name': '🧣 Шарф ополченца',
         'description': 'Теплый, но безполезный. Бонусов нет',
-        'price': 10,
-        'bonus_type': 'farm',
-        'bonus_value': 2.0
+        'price': 10, 'bonus_type': None, 'bonus_value': 0.0,          # было farm / 2.0 ← ЭКСПЛОЙТ
     },
-    # ===== SKRAFT / СКИДКИ =====
+
+    # ── Крафт: окупаемость ~30 крафтов ───────────────────────────
     'jade_rod': {
-        'id': 'jade_rod',
-        'name': '💊 Нефритовый стержень',
+        'id': 'jade_rod', 'name': '💊 Нефритовый стержень',
         'description': 'Экономит 20 Zеток на крафте',
-        'price': 800,
-        'bonus_type': 'craft',
-        'bonus_value': 20
-    },
-    'teapot': {
-        'id': 'teapot',
-        'name': '🫖 Чайник губернатора',
-        'description': 'Экономит 10 Zеток на крафте',
-        'price': 400,
-        'bonus_type': 'craft',
-        'bonus_value': 10
+        'price': 600, 'bonus_type': 'craft', 'bonus_value': 20,       # было 800
     },
     'crimean_ticket': {
-        'id': 'crimean_ticket',
-        'name': '🎫 Билет в Крымский театр',
+        'id': 'crimean_ticket', 'name': '🎫 Билет в Крымский театр',
         'description': 'Экономит 15 Zеток на крафте',
-        'price': 600,
-        'bonus_type': 'craft',
-        'bonus_value': 15
+        'price': 450, 'bonus_type': 'craft', 'bonus_value': 15,       # было 600
     },
-    # ===== ВРЕМЯ =====
+    'teapot': {
+        'id': 'teapot', 'name': '🫖 Чайник губернатора',
+        'description': 'Экономит 10 Zеток на крафте',
+        'price': 300, 'bonus_type': 'craft', 'bonus_value': 10,       # было 400
+    },
+
+    # ── Расходник ───────────────────────────────────────────────
     'scroll': {
-        'id': 'scroll',
-        'name': '📜 Свиток мудрости',
+        'id': 'scroll', 'name': '📜 Свиток мудрости',
         'description': 'Уменьшает время фарма на 10 минут',
-        'price': 1500,
-        'bonus_type': 'time',
-        'bonus_value': 600
+        'price': 1200, 'bonus_type': 'time', 'bonus_value': 600,      # было 1500
     },
 }
 def load_user_data():
